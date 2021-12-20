@@ -10,6 +10,8 @@ let usersRouter = require('./routes/users');
 let dishRouter = require('./routes/dishRouter');
 let leaderRouter = require('./routes/leaderRouter');
 let promoRouter = require('./routes/promoRouter');
+let passport = require("passport");
+let authenticate = require('./authenticate');
 const mongoose = require('mongoose');
 const Dishes = require('./models/dishes');
 const Promotions = require("./models/promotions");
@@ -26,7 +28,6 @@ let app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -37,25 +38,23 @@ app.use(session({
     resave: false,
     store: new FileStore()
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use(passport.initialize());
+app.use(passport.session());
 
 function auth (req, res, next) {
-    console.log(req.session);
+    console.log(req.user);
 
-    if(!req.session.user) {
+    if (!req.user) {
         var err = new Error('You are not authenticated!');
         err.status = 403;
-        return next(err);
-        }
-        else {
-        if (req.session.user='authenticated') {
-            next(); // authorized
-        } else {
-            var err = new Error('You are not authenticated!');
-            err.status = 403;
-            return next(err);
-        }
+        next(err);
+    }
+    else {
+        next();
     }
 }
 
