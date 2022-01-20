@@ -14,6 +14,7 @@ let usersRouter = require('./routes/users');
 let dishRouter = require('./routes/dishRouter');
 let leaderRouter = require('./routes/leaderRouter');
 let promoRouter = require('./routes/promoRouter');
+const uploadRouter = require('./routes/uploadRouter');
 
 const mongoose = require('mongoose');
 const Dishes = require('./models/dishes');
@@ -54,6 +55,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/imageUpload', uploadRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/dishes', dishRouter);
