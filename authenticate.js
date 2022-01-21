@@ -4,6 +4,7 @@ let User = require('./models/userDetails');
 var JwtStrategy = require('passport-jwt').Strategy;
 var ExtractJwt = require('passport-jwt').ExtractJwt;
 var jwt = require('jsonwebtoken');
+var FacebookTokenStrategy = require('passport-facebook-token');
 
 let config = require('./config');
 
@@ -45,3 +46,29 @@ exports.verifyAdmin = (req, res, next) => {
         res.end('You are not authorized to perform this operation!');
        return next(err);
     }};
+
+exports.facebookPassport = passport.use(new FacebookTokenStrategy({
+    clientID: config.facebook.clientId,
+    clientSecret: config.facebook.clientSecret
+}, (accessToken, refreshToken, profile, done) => {
+    User.findOne({facebookId: profile.id}, (err, user) => {
+        if (err) {
+            return done(err, false);
+        }
+        if (!err && user !== null) {
+            return done(null, user);
+        }
+        else {
+            user = new User({ username: profile.displayName});
+            user.facebookId = profile.Id;
+            user.firstname = profile.name.givenName;
+            user.lastname = profile.name.familyName;
+            user.save((err, user) => {
+                if(err)
+                    return done(err, false);
+                else
+                    return done(null, user);
+            })
+        }
+    })
+}));
