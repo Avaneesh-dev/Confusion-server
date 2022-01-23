@@ -12,7 +12,7 @@ let userDetails = new Schema({
         default: ""
     },
     facebookId: String,
-    admin:   {
+    admin: {
         type: Boolean,
         default: false
     }
